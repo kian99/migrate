@@ -65,6 +65,7 @@ type Config struct {
 	MigrationsTableQuoted bool
 	MultiStatementEnabled bool
 	MultiStatementMaxSize int
+	SkipCloseDB           bool
 }
 
 type Postgres struct {
@@ -241,7 +242,10 @@ func (p *Postgres) Open(url string) (database.Driver, error) {
 
 func (p *Postgres) Close() error {
 	connErr := p.conn.Close()
-	dbErr := p.db.Close()
+	var dbErr error
+	if !p.config.SkipCloseDB {
+		dbErr = p.db.Close()
+	}
 	if connErr != nil || dbErr != nil {
 		return fmt.Errorf("conn: %v, db: %v", connErr, dbErr)
 	}

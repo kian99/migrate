@@ -53,6 +53,7 @@ type Config struct {
 	migrationsTableName   string
 	StatementTimeout      time.Duration
 	MultiStatementMaxSize int
+	SkipCloseDB           bool
 }
 
 type Postgres struct {
@@ -221,7 +222,7 @@ func (p *Postgres) Open(url string) (database.Driver, error) {
 func (p *Postgres) Close() error {
 	connErr := p.conn.Close()
 	var dbErr error
-	if p.db != nil {
+	if p.db != nil && !p.config.SkipCloseDB {
 		dbErr = p.db.Close()
 	}
 
